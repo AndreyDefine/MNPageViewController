@@ -20,6 +20,7 @@
 @property(nonatomic,weak) id <MNPageViewControllerDelegate>   delegate;
 
 - (void)updateViewController:(UIViewController *)viewController;
+- (void)gotToNextWithDirection:(UIPageViewControllerNavigationDirection)direction animated:(BOOL)animated completion:(void (^)(BOOL finished))completion;
 
 @end
 

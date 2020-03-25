@@ -79,11 +79,44 @@
     
     self.leftInset  = 0.f;
     self.rightInset = 0.f;
-    CGRect bounds = self.view.bounds;
     self.scrollView.contentInset = UIEdgeInsetsMake(0.f, self.leftInset, 0.f, self.rightInset);
-    self.scrollView.contentOffset = CGPointMake(bounds.size.width, 0.f);
+    self.scrollView.contentOffset = CGPointMake(self.view.bounds.size.width, 0.f);
     [self initializeChildControllers];
     [self layoutControllers];
+}
+
+- (void)gotToNextWithDirection:(UIPageViewControllerNavigationDirection)direction animated:(BOOL)animated completion:(void (^)(BOOL finished))completion {
+    CGPoint newContentOffset;
+    if (direction == UIPageViewControllerNavigationDirectionForward) {
+        if (!self.afterController) {
+            return;
+        }
+        newContentOffset = CGPointMake(self.view.bounds.size.width * 2, 0.f);
+    } else {
+        if (!self.beforeController) {
+            return;
+        }
+        newContentOffset = CGPointMake(0, 0.f);
+    }
+    self.view.userInteractionEnabled = NO;
+    void (^animations)() = ^() {
+        self.scrollView.contentOffset = newContentOffset;
+    };
+    void (^completionAnimations)(BOOL) = ^(BOOL finished) {
+        self.view.userInteractionEnabled = YES;
+        if (completion) {
+            completion(finished);
+        }
+    };
+    
+    if (animated) {
+        [UIView animateWithDuration:0.25 animations:animations completion:completionAnimations];
+    } else {
+        animations();
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionAnimations(YES);
+        });
+    }
 }
 
 - (void)viewWillLayoutSubviews {
