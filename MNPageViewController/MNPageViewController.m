@@ -85,7 +85,7 @@
     [self layoutControllers];
 }
 
-- (void)gotToNextWithDirection:(UIPageViewControllerNavigationDirection)direction animated:(BOOL)animated completion:(void (^)(BOOL finished))completion {
+- (void)gotToNextWithDirection:(UIPageViewControllerNavigationDirection)direction animated:(BOOL)animated animationDuration:(CGFloat)animationDuration completion:(void (^)(BOOL finished))completion {
     CGPoint newContentOffset;
     if (direction == UIPageViewControllerNavigationDirectionForward) {
         if (!self.afterController) {
@@ -110,7 +110,7 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:0.25 animations:animations completion:completionAnimations];
+        [UIView animateWithDuration:animationDuration animations:animations completion:completionAnimations];
     } else {
         animations();
         dispatch_async(dispatch_get_main_queue(), ^{
