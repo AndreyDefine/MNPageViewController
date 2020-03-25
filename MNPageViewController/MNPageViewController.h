@@ -19,6 +19,8 @@
 @property(nonatomic,weak) id <MNPageViewControllerDataSource> dataSource;
 @property(nonatomic,weak) id <MNPageViewControllerDelegate>   delegate;
 
+- (void)updateViewController:(UIViewController *)viewController;
+
 @end
 
 @protocol MNPageViewControllerDataSource <NSObject>

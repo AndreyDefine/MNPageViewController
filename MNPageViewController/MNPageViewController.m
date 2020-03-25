@@ -60,9 +60,30 @@
         self.rightInset = 0.f;
         self.scrollView.contentInset = UIEdgeInsetsMake(0.f, self.leftInset, 0.f, self.rightInset);
         self.scrollView.contentOffset = CGPointMake(bounds.size.width, 0.f);
+        [self initializeChildControllers];
     }
+}
+
+- (void)updateViewController:(UIViewController *)viewController {
+    [self.viewController willMoveToParentViewController:nil];
+    [self.viewController.view removeFromSuperview];
+    [self.viewController removeFromParentViewController];
     
+    self.viewController = viewController;
+    
+    [self.viewController willMoveToParentViewController:self];
+    [self addChildViewController:self.viewController];
+    [self.scrollView addSubview:self.viewController.view];
+    self.viewController.view.frame = self.view.bounds;
+    [self.viewController didMoveToParentViewController:self];
+    
+    self.leftInset  = 0.f;
+    self.rightInset = 0.f;
+    CGRect bounds = self.view.bounds;
+    self.scrollView.contentInset = UIEdgeInsetsMake(0.f, self.leftInset, 0.f, self.rightInset);
+    self.scrollView.contentOffset = CGPointMake(bounds.size.width, 0.f);
     [self initializeChildControllers];
+    [self layoutControllers];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -95,7 +116,7 @@
     return self.viewController;
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
 

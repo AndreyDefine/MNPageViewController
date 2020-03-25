@@ -19,6 +19,6 @@
 
 @interface MNQueuingScrollView : UIScrollView
 
-@property(nonatomic,weak) id <MNQueuingScrollViewDelegate> delegate;
+@property(nonatomic, weak) id <MNQueuingScrollViewDelegate> delegate;
 
 @end
