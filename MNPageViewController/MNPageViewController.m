@@ -87,21 +87,23 @@
 
 - (void)gotToNextWithDirection:(UIPageViewControllerNavigationDirection)direction animated:(BOOL)animated animationDuration:(CGFloat)animationDuration completion:(void (^)(BOOL finished))completion {
     CGPoint newContentOffset;
-    if (direction == UIPageViewControllerNavigationDirectionForward) {
-        if (!self.afterController) {
-            return;
-        }
-        newContentOffset = CGPointMake(self.view.bounds.size.width * 2, 0.f);
-    } else {
-        if (!self.beforeController) {
-            return;
-        }
-        newContentOffset = CGPointMake(0, 0.f);
-    }
+	if (direction == UIPageViewControllerNavigationDirectionForward) {
+		if (!self.afterController) {
+			return;
+		}
+		newContentOffset = (CGPoint){self.view.bounds.size.width * 2, self.scrollView.contentOffset.y};
+	} else {
+		if (!self.beforeController) {
+			return;
+		}
+		newContentOffset = (CGPoint){0, self.scrollView.contentOffset.y};
+	}
     self.view.userInteractionEnabled = NO;
-    void (^animations)() = ^() {
-        self.scrollView.contentOffset = newContentOffset;
-    };
+	@try {
+		[self.scrollView setValue:@(animationDuration) forKeyPath:@"contentOffsetAnimationDuration"];
+	} @catch (NSException *exception) {
+		NSLog(@"%@", exception);
+	}
     void (^completionAnimations)(BOOL) = ^(BOOL finished) {
         self.view.userInteractionEnabled = YES;
         if (completion) {
@@ -110,9 +112,12 @@
     };
     
     if (animated) {
-        [UIView animateWithDuration:animationDuration animations:animations completion:completionAnimations];
+		[self.scrollView setContentOffset:newContentOffset animated:YES];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(animationDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			completionAnimations(YES);
+		});
     } else {
-        animations();
+        [self.scrollView setContentOffset:newContentOffset animated:NO];
         dispatch_async(dispatch_get_main_queue(), ^{
             completionAnimations(YES);
         });
@@ -125,24 +130,6 @@
     self.scrollView.frame = self.view.bounds;
     
     [self layoutControllers];
-}
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    self.rotating = YES;
-}
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    [self layoutControllers];
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    [self setNeedsRatioReset];
-    self.rotating = NO;
 }
 
 - (UIViewController *)childViewControllerForStatusBarStyle {
@@ -261,7 +248,6 @@
         CGFloat scrollRatio = ((self.scrollView.contentOffset.x - bounds.size.width) / bounds.size.width);
         
         for (UIViewController *controller in self.childViewControllers) {
-            // um, this is ugly, need to refactor
             CGFloat ratio = fabs(1.f - fabs(fabs((controller.view.frame.origin.x - bounds.size.width) / bounds.size.width) - scrollRatio));
             [self.delegate mn_pageViewController:self didScrollViewController:controller withRatio:ratio];
         }
