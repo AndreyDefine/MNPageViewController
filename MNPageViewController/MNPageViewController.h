@@ -13,7 +13,7 @@
 
 @interface MNPageViewController : UIViewController<UIScrollViewDelegate>
 
-@property(nonatomic,readonly) UIScrollView     *scrollView;
+@property(nonatomic, readonly) UIScrollView     *scrollView;
 @property(nonatomic)          UIViewController *viewController;
 
 @property(nonatomic,weak) id <MNPageViewControllerDataSource> dataSource;
