@@ -18,6 +18,11 @@
         self.alwaysBounceHorizontal = YES;
         self.pagingEnabled = YES;
         self.scrollsToTop = NO;
+        if (@available(iOS 11.0, *)) {
+            self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        } else {
+            // Fallback on earlier versions
+        }
     }
     return self;
 }
