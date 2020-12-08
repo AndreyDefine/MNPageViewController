@@ -294,17 +294,27 @@
     [self setNeedsRatioUpdate];
 }
 
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+	if (!decelerate) {
+		[self doEndDecelerating:scrollView];
+	}
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    if (scrollView != self.scrollView) {
-        return;
-    }
-    if (self.isRotating) {
-        return;
-    }
-    self.scrollView.contentInset = UIEdgeInsetsMake(0.f, self.leftInset, 0.f, self.rightInset);
-    
-    [self setNeedsRatioReset];
-    [self setNeedsStatusBarAppearanceUpdate];
+	[self doEndDecelerating:scrollView];
+}
+
+- (void)doEndDecelerating:(UIScrollView *)scrollView {
+	if (scrollView != self.scrollView) {
+		return;
+	}
+	if (self.isRotating) {
+		return;
+	}
+	self.scrollView.contentInset = UIEdgeInsetsMake(0.f, self.leftInset, 0.f, self.rightInset);
+	
+	[self setNeedsRatioReset];
+	[self setNeedsStatusBarAppearanceUpdate];
 }
 
 #pragma mark - MNQueuingScrollViewDelegate
